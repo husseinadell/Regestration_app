@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>ACES Expo Registration</title>
+    <link rel="stylesheet" type="text/css" href="./node_modules/bulma/css/bulma.css"/>
+    <link rel="stylesheet" type="text/css" href="./font-awesome-4.7.0/css/font-awesome.css"/>
+  </head>
+  <body>
+    <div class="column is-half is-offset-one-quarter">
+      <br>
+      <figure class="has-text-centered">
+        <img src="./images/ACES_Logo.png" width="50%"/>
+        <!-- <img src="./images/Expo_Logo.png"/> -->
+      </figure>
+      <br />
+      <div class="content">
+        <h1 class="has-text-centered is-large is">ACES Expo Registration'19</h1>
+      </div>
+      <div class="field">
+        <label class="label is-centered">Booth Day:</label>
+        <div class="control has-icons-left">
+          <div class="select is-medium">
+            <select id="booth_day">
+              <option value="1" selected>Day 1</option>
+              <option value="2">Day 2</option>
+              <option value="3">Day 3</option>
+              <option value="4">Day 4</option>
+              <option value="5">Day 5</option>
+              <option value="6">Day 6</option>
+              <option value="7">Day 7</option>
+            </select>
+          </div>
+          <div class="icon is-small is-left">
+            <i class="fa fa-calendar"></i>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label is-centered">Applicant Mail:</label>
+        <div class="control has-icons-left">
+          <input class="input is-large" type="email">
+          <span class="icon is-small is-left">
+            <i class="fa fa-envelope"></i>
+          </span>
+        </div>
+        <span id="tag" class="is-medium"></span>
+      </div>
+      <div class="columns">
+        <div class="column is-half is-offset-one-quarter">
+          <div class="control has-text-centered">
+            <button class="button is-success is-large" style="background-color:#008f49">Save Mail</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+    let $ = require('jquery')
+    let fs = require('fs')
+    let os = require('os')
+
+    //Dealing With Mail Inputs
+    function validateEmail(email) {
+        var re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/igm;
+        return re.test(email);
+    }
+    $(".button").click(function(){
+      //Loading State
+      $(".button").addClass("is-loading");
+      if(validateEmail($(".input").val())) {
+        $(".button").removeClass("is-loading");
+        $("#tag").removeClass("tag is-danger");
+        $("#tag").addClass("tag is-success");
+        $("#tag").text("Succefully added " + $(".input").val());
+        //Saving The Mail
+        var data = {
+          "email":$(".input").val().toLowerCase(),
+          "day": + $("#booth_day").val(),
+          "event": null
+        }
+        // var data = '{ \n "email":"' + $(".input").val().toLowerCase() + '",\n "day":' + $("#booth_day").val() + ',\n "invitation_sent":"' + "false" + '",\n "event":"' + "null" + '" \n }, \n';
+        data = JSON.stringify(data) + ", \n";
+        var filename = os.hostname() + "_Day" + $("#booth_day").val() + "_mails";
+        if (!fs.existsSync("./mails")){
+          fs.mkdirSync("./mails");
+         }
+        fs.appendFile("./mails/" + filename + '.txt', data, (err) => {
+          if (err) throw err;
+          console.log('The "data to append" was appended to file!');
+        });
+      }
+      else {
+        $(".button").removeClass("is-loading");
+        $("#tag").removeClass("tag is-success");
+        $("#tag").addClass("tag is-danger");
+        $("#tag").text("Enter Valid Mail");
+      }
+    })
+    </script>
+  </body>
+</html>
